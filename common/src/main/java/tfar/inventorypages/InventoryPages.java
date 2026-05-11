@@ -1,7 +1,25 @@
 package tfar.inventorypages;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.stream.JsonReader;
+import net.minecraft.core.Registry;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.TagKey;
+import net.minecraft.util.GsonHelper;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import tfar.inventorypages.platform.Services;
+
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
+import java.util.*;
 
 // This class is part of the common project meaning it is shared between all supported loaders. Code written here can only
 // import and access the vanilla codebase, libraries used by vanilla, and optionally third party libraries that provide
@@ -22,5 +40,48 @@ public class InventoryPages {
         // your own abstraction layer. You can learn more about this in our provided services class. In this example
         // we have an interface in the common code and use a loader specific implementation to delegate our call to
         // the platform specific approach.
+    }
+
+    public static final Path PATH = Services.PLATFORM.getConfigDirectory().resolve("inventorypages.json");
+
+    public static JsonObject read(Gson gson) {
+        if (!PATH.toFile().exists()) {
+            writeDefaultConfig();
+        }
+        try (Reader reader = new FileReader(PATH.toFile())){
+            JsonReader jsonReader = new JsonReader(reader);
+            LOG.info("Loading existing config");
+            return gson.fromJson(jsonReader, JsonObject.class);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static final List<InventoryPage.Config> LIST = new ArrayList<>();
+
+    public static void load(JsonObject jsonObject) {
+        LIST.clear();
+
+        JsonArray jsonArray = jsonObject.getAsJsonArray("pages");
+
+        for  (JsonElement jsonElement : jsonArray) {
+            JsonObject o =  jsonElement.getAsJsonObject();
+            ItemStack itemStack = new ItemStack(GsonHelper.getAsItem(o,"icon"));
+            TagKey<Item> tagKey = TagKey.create(Registry.ITEM_REGISTRY,new ResourceLocation(GsonHelper.getAsString(o,"tag")));
+            LIST.add(new InventoryPage.Config(itemStack,tagKey));
+        }
+
+        //MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
+        //if (server != null) server.getPlayerList().getPlayers().forEach(player -> PacketHandler.sendToClient(new S2CConfigPacket(MAP),player));
+    }
+
+    public static void writeDefaultConfig() {
+        try (InputStream resource = InventoryPages.class.getClassLoader()
+                .getResourceAsStream("inventorypages.json")){
+            Files.copy(resource, PATH, StandardCopyOption.REPLACE_EXISTING);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }
