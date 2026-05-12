@@ -13,15 +13,16 @@ import tfar.inventorypages.network.PacketHandler;
 import tfar.inventorypages.network.client.S2CCarriedItemPacket;
 import tfar.inventorypages.network.server.C2SChangePagePacket;
 
-public class InventoryPagesClient {
+public class InventoryPagesClientForge {
 
     public static void init(IEventBus bus) {
-        bus.addListener(InventoryPagesClient::setup);
+        bus.addListener(InventoryPagesClientForge::setup);
     }
 
     static void setup(FMLClientSetupEvent event) {
         MenuScreens.register(RegistryObjects.INVENTORY_PAGE_MENU, InventoryPageScreen::new);
-        MinecraftForge.EVENT_BUS.addListener(InventoryPagesClient::addButtons);
+        MenuScreens.register(RegistryObjects.INVENTORY_PAGE_MENU_V2, InventoryPageScreenV2::new);
+        MinecraftForge.EVENT_BUS.addListener(InventoryPagesClientForge::addButtons);
     }
 
     static void addButtons(ScreenEvent.Init.Post event) {

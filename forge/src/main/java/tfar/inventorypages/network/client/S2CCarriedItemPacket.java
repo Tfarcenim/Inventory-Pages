@@ -2,7 +2,7 @@ package tfar.inventorypages.network.client;
 
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.item.ItemStack;
-import tfar.inventorypages.InventoryPagesClient;
+import tfar.inventorypages.InventoryPagesClientForge;
 
 
 public record S2CCarriedItemPacket(ItemStack carried) implements S2CModPacket {
@@ -14,7 +14,7 @@ public record S2CCarriedItemPacket(ItemStack carried) implements S2CModPacket {
 
     @Override
     public void handleClient() {
-        InventoryPagesClient.handle(this);
+        InventoryPagesClientForge.handle(this);
     }
 
     @Override

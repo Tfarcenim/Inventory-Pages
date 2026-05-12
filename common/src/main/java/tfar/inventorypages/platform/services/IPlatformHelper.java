@@ -1,5 +1,8 @@
 package tfar.inventorypages.platform.services;
 
+import net.minecraft.server.level.ServerPlayer;
+import tfar.inventorypages.network.client.S2CModPacket;
+
 import java.nio.file.Path;
 
 public interface IPlatformHelper {
@@ -37,4 +40,6 @@ public interface IPlatformHelper {
     }
 
     Path getConfigDirectory();
+
+    void sendToClient(S2CModPacket packet, ServerPlayer player);
 }

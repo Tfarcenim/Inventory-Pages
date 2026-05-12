@@ -14,6 +14,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 
+import static net.minecraft.world.inventory.InventoryMenu.*;
+
 public class InventoryPageMenu extends RecipeBookMenu<CraftingContainer> {
     public static final int CONTAINER_ID = 0;
     public static final int RESULT_SLOT = 0;
@@ -26,12 +28,6 @@ public class InventoryPageMenu extends RecipeBookMenu<CraftingContainer> {
     public static final int USE_ROW_SLOT_START = 36;
     public static final int USE_ROW_SLOT_END = 45;
     public static final int SHIELD_SLOT = 45;
-    public static final ResourceLocation BLOCK_ATLAS = new ResourceLocation("textures/atlas/blocks.png");
-    public static final ResourceLocation EMPTY_ARMOR_SLOT_HELMET = new ResourceLocation("item/empty_armor_slot_helmet");
-    public static final ResourceLocation EMPTY_ARMOR_SLOT_CHESTPLATE = new ResourceLocation("item/empty_armor_slot_chestplate");
-    public static final ResourceLocation EMPTY_ARMOR_SLOT_LEGGINGS = new ResourceLocation("item/empty_armor_slot_leggings");
-    public static final ResourceLocation EMPTY_ARMOR_SLOT_BOOTS = new ResourceLocation("item/empty_armor_slot_boots");
-    public static final ResourceLocation EMPTY_ARMOR_SLOT_SHIELD = new ResourceLocation("item/empty_armor_slot_shield");
     static final ResourceLocation[] TEXTURE_EMPTY_SLOTS;
     private static final EquipmentSlot[] SLOT_IDS;
     private final CraftingContainer craftSlots = new CraftingContainer(this, 2, 2);

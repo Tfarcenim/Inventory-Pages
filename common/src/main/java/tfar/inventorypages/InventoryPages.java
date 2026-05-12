@@ -7,6 +7,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.stream.JsonReader;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.entity.player.Player;
@@ -15,6 +16,7 @@ import net.minecraft.world.item.ItemStack;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import tfar.inventorypages.network.client.S2CToastPacket;
 import tfar.inventorypages.platform.Services;
 
 import java.io.*;
@@ -61,6 +63,7 @@ public class InventoryPages {
     }
 
     public static final List<InventoryPage.Config> LIST = new ArrayList<>();
+    public static boolean SHOW_POPUPS;
 
     public static void load(JsonObject jsonObject) {
         LIST.clear();
@@ -73,6 +76,8 @@ public class InventoryPages {
             TagKey<Item> tagKey = TagKey.create(Registry.ITEM_REGISTRY,new ResourceLocation(GsonHelper.getAsString(o,"tag")));
             LIST.add(new InventoryPage.Config(itemStack,tagKey));
         }
+
+        SHOW_POPUPS = GsonHelper.getAsBoolean(jsonObject,"show_popups",true);
 
         //MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
         //if (server != null) server.getPlayerList().getPlayers().forEach(player -> PacketHandler.sendToClient(new S2CConfigPacket(MAP),player));
@@ -96,9 +101,13 @@ public class InventoryPages {
         if (page > -1) {
             InventoryPageList inventoryPageList = ((PlayerDuck)player).inventoryPageList();
             InventoryPage inventoryPage = inventoryPageList.get(page);
+            ItemStack original = itemStack.copy();
             boolean handled = inventoryPage.add(player,itemStack);
             if (handled) {
                 cir.setReturnValue(true);
+            }
+            if (SHOW_POPUPS && player instanceof ServerPlayer serverPlayer) {
+                Services.PLATFORM.sendToClient(new S2CToastPacket(page,original),serverPlayer);
             }
         }
     }

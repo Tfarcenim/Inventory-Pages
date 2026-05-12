@@ -1,10 +1,8 @@
 package tfar.inventorypages;
 
 import net.minecraft.core.Registry;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.GameRules;
-import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.AddReloadListenerEvent;
 import net.minecraftforge.event.TickEvent;
@@ -30,7 +28,7 @@ public class InventoryPagesForge {
         // project.
 
         if (FMLEnvironment.dist.isClient()) {
-            InventoryPagesClient.init(eventbus);
+            InventoryPagesClientForge.init(eventbus);
         }
 
         PacketHandler.registerPackets();

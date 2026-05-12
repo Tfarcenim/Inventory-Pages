@@ -10,6 +10,7 @@ import net.minecraftforge.network.simple.SimpleChannel;
 import tfar.inventorypages.InventoryPages;
 import tfar.inventorypages.network.client.S2CCarriedItemPacket;
 import tfar.inventorypages.network.client.S2CModPacket;
+import tfar.inventorypages.network.client.S2CToastPacket;
 import tfar.inventorypages.network.server.C2SBackPacket;
 import tfar.inventorypages.network.server.C2SChangePagePacket;
 import tfar.inventorypages.network.server.C2SModPacket;
@@ -29,6 +30,7 @@ public class PacketHandler {
 
     public static void registerClientPackets() {
         registerClientPacket(S2CCarriedItemPacket.class, S2CCarriedItemPacket::new);
+        registerClientPacket(S2CToastPacket.class, S2CToastPacket::new);
     }
 
     static int i;
