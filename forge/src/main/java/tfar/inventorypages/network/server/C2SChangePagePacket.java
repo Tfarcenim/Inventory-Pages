@@ -7,7 +7,10 @@ import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.item.ItemStack;
 import tfar.inventorypages.InventoryPageMenu;
+import tfar.inventorypages.network.PacketHandler;
+import tfar.inventorypages.network.client.S2CCarriedItemPacket;
 
 public record C2SChangePagePacket(int index) implements C2SModPacket{
 
@@ -18,6 +21,9 @@ public record C2SChangePagePacket(int index) implements C2SModPacket{
     @Override
     public void handleServer(ServerPlayer player) {
         if (!(player.containerMenu instanceof  InventoryPageMenu inventoryPageMenu)) {
+            ItemStack carried = player.inventoryMenu.getCarried();
+            player.inventoryMenu.setCarried(ItemStack.EMPTY);
+            player.containerMenu.setCarried(carried);
             player.openMenu(new MenuProvider() {
                 @Override
                 public Component getDisplayName() {
@@ -29,6 +35,7 @@ public record C2SChangePagePacket(int index) implements C2SModPacket{
                     return new InventoryPageMenu(pContainerId, pPlayerInventory, pPlayer, index);
                 }
             });
+            PacketHandler.sendToClient(new S2CCarriedItemPacket(carried),player);
         } else {
             inventoryPageMenu.setPage(index);
         }

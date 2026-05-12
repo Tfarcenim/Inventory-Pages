@@ -9,10 +9,12 @@ import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.GsonHelper;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import tfar.inventorypages.platform.Services;
 
 import java.io.*;
@@ -87,5 +89,32 @@ public class InventoryPages {
 
     public static ResourceLocation id(String path) {
         return new ResourceLocation(MOD_ID, path);
+    }
+
+    public static void handle(Player player, ItemStack itemStack, CallbackInfoReturnable<Boolean> cir) {
+        int page = findPage(itemStack);
+        if (page > -1) {
+            InventoryPageList inventoryPageList = ((PlayerDuck)player).inventoryPageList();
+            InventoryPage inventoryPage = inventoryPageList.get(page);
+            boolean handled = inventoryPage.add(player,itemStack);
+            if (handled) {
+                cir.setReturnValue(true);
+            }
+        }
+    }
+
+    public static int findPage(ItemStack itemStack) {
+        for (int i = 0; i < LIST.size(); i++) {
+            InventoryPage.Config config = LIST.get(i);
+            TagKey<Item> tagKey = config.tag();
+            if (itemStack.is(tagKey)) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    public static void tick(Player player) {
+        ((PlayerDuck)player).inventoryPageList().tick();
     }
 }

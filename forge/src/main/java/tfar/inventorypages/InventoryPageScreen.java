@@ -22,6 +22,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.ClickType;
 import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.ItemStack;
 import tfar.inventorypages.network.PacketHandler;
 import tfar.inventorypages.network.server.C2SBackPacket;
 import tfar.inventorypages.network.server.C2SChangePagePacket;
@@ -72,13 +73,17 @@ public class InventoryPageScreen extends EffectRenderingInventoryScreen<Inventor
         backButton = new BackButton(leftPos - 20, topPos + TOP,
                 20, 20, Component.literal("B"),
                 b -> {
-            PacketHandler.sendToServer(C2SBackPacket.INSTANCE);
+            //open vanilla inventory
+                    PacketHandler.sendToServer(C2SBackPacket.INSTANCE);
+                    ItemStack stack = minecraft.player.containerMenu.getCarried();
+                    minecraft.player.containerMenu.setCarried(ItemStack.EMPTY);
                     if (minecraft.gameMode.isServerControlledInventory()) {//opens vehicle inventory
                         minecraft.player.sendOpenInventory();
                     } else {
                         //this.tutorial.onOpenInventory();
                         minecraft.setScreen(new InventoryScreen(minecraft.player));
                         minecraft.player.containerMenu = minecraft.player.inventoryMenu;
+                        minecraft.player.containerMenu.setCarried(stack);
                     }
                 },
                 (pButton, pPoseStack, pMouseX, pMouseY) -> {
@@ -92,7 +97,7 @@ public class InventoryPageScreen extends EffectRenderingInventoryScreen<Inventor
 
     void updateButtonPositions() {
         for (InventoryPageButton button : this.pageButtons) {
-            button.setPosition(this.leftPos - 20, topPos + 20 * button.page + TOP+20);
+            button.setPosition(this.leftPos - 20, topPos + 20 * button.page + TOP + 20);
         }
     }
 
@@ -100,12 +105,12 @@ public class InventoryPageScreen extends EffectRenderingInventoryScreen<Inventor
         int buttons = InventoryPages.LIST.size();
         for (int i = 0; i < buttons; i++) {
             int finalI = i;
-            InventoryPageButton pageButton = new InventoryPageButton(leftPos - 20, topPos + 20 * i + TOP+20,
+            InventoryPageButton pageButton = new InventoryPageButton(leftPos - 20, topPos + 20 * i + TOP + 20,
                     20, 20, Component.empty(),
                     b -> PacketHandler.sendToServer(new C2SChangePagePacket(finalI)),
                     (pButton, pPoseStack, pMouseX, pMouseY) -> {
 
-                    }, finalI,this);
+                    }, finalI, this);
             pageButtons.add(pageButton);
             addRenderableWidget(pageButton);
         }
@@ -113,19 +118,19 @@ public class InventoryPageScreen extends EffectRenderingInventoryScreen<Inventor
 
     @Override
     protected void renderLabels(PoseStack $$0, int pMouseX, int pMouseY) {
-        this.font.draw($$0, this.title.copy().append(" Page "+menu.page), (float) this.titleLabelX - 19, (float) this.titleLabelY, 0x404040);
+        this.font.draw($$0, this.title.copy().append(" Page " + menu.page), (float) this.titleLabelX - 19, (float) this.titleLabelY, 0x404040);
     }
 
     @Override
-    public void render(PoseStack $$0, int pMouseX, int pMouseY, float $$3) {
+    public void render(PoseStack $$0, int pMouseX, int pMouseY, float pPartialTick) {
         this.renderBackground($$0);
         if (this.recipeBookComponent.isVisible() && this.widthTooNarrow) {
-            this.renderBg($$0, $$3, pMouseX, pMouseY);
-            this.recipeBookComponent.render($$0, pMouseX, pMouseY, $$3);
+            this.renderBg($$0, pPartialTick, pMouseX, pMouseY);
+            this.recipeBookComponent.render($$0, pMouseX, pMouseY, pPartialTick);
         } else {
-            this.recipeBookComponent.render($$0, pMouseX, pMouseY, $$3);
-            super.render($$0, pMouseX, pMouseY, $$3);
-            this.recipeBookComponent.renderGhostRecipe($$0, this.leftPos, this.topPos, false, $$3);
+            this.recipeBookComponent.render($$0, pMouseX, pMouseY, pPartialTick);
+            super.render($$0, pMouseX, pMouseY, pPartialTick);
+            this.recipeBookComponent.renderGhostRecipe($$0, this.leftPos, this.topPos, false, pPartialTick);
         }
 
         this.renderTooltip($$0, pMouseX, pMouseY);
@@ -177,9 +182,9 @@ public class InventoryPageScreen extends EffectRenderingInventoryScreen<Inventor
     }
 
     @Override
-    protected void slotClicked(Slot $$0, int $$1, int $$2, ClickType $$3) {
-        super.slotClicked($$0, $$1, $$2, $$3);
-        this.recipeBookComponent.slotClicked($$0);
+    protected void slotClicked(Slot slot, int $$1, int $$2, ClickType $$3) {
+        super.slotClicked(slot, $$1, $$2, $$3);
+        this.recipeBookComponent.slotClicked(slot);
     }
 
     @Override
@@ -206,7 +211,7 @@ public class InventoryPageScreen extends EffectRenderingInventoryScreen<Inventor
         private final EffectRenderingInventoryScreen<?> screen;
 
 
-        public InventoryPageButton(int pX, int pY, int pWidth, int pHeight, Component pMessage, OnPress pOnPress, OnTooltip pOnTooltip,int page,
+        public InventoryPageButton(int pX, int pY, int pWidth, int pHeight, Component pMessage, OnPress pOnPress, OnTooltip pOnTooltip, int page,
                                    EffectRenderingInventoryScreen<?> screen) {
             super(pX, pY, pWidth, pHeight, pMessage, pOnPress, pOnTooltip);
             this.page = page;
@@ -217,7 +222,7 @@ public class InventoryPageScreen extends EffectRenderingInventoryScreen<Inventor
         public void renderButton(PoseStack pPoseStack, int pMouseX, int pMouseY, float pPartialTick) {
             super.renderButton(pPoseStack, pMouseX, pMouseY, pPartialTick);
             InventoryPage.Config config = InventoryPages.LIST.get(this.page);
-            Minecraft.getInstance().getItemRenderer().renderAndDecorateFakeItem(config.icon(),x+2,y+2);
+            Minecraft.getInstance().getItemRenderer().renderAndDecorateFakeItem(config.icon(), x + 2, y + 2);
         }
 
         public void setPosition(int pX, int pY) {

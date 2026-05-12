@@ -45,4 +45,10 @@ public class InventoryPageList extends ArrayList<InventoryPage> {
             inventoryPageNew.replaceWith(inventoryPageOriginal);
         }
     }
+
+    public void tick() {
+        for (InventoryPage inventoryPage : this) {
+            inventoryPage.tick(player);
+        }
+    }
 }

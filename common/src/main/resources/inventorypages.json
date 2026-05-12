@@ -2,7 +2,7 @@
   "pages": [
     {
       "icon" : "minecraft:iron_pickaxe",
-      "tag" : "minecraft:tools"
+      "tag" : "forge:tools"
     }
   ]
 }
