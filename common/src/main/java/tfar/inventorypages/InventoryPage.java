@@ -4,6 +4,7 @@ import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.tags.TagKey;
+import net.minecraft.world.ContainerHelper;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -51,6 +52,25 @@ public class InventoryPage {
                 player.drop(itemstack, true, false);
                 items.set(i, ItemStack.EMPTY);
             }
+        }
+    }
+
+    public ItemStack getItem(int slot) {
+        return items.get(slot);
+    }
+
+    public void setItem(int slot,ItemStack pStack) {
+        items.set(slot, pStack);
+    }
+
+    public ItemStack removeItem(int slot, int pAmount) {
+        ItemStack itemstack = ContainerHelper.removeItem(this.items, slot, pAmount);
+        return itemstack;
+    }
+
+    public void replaceWith(InventoryPage inventoryPageOriginal) {
+        for(int i = 0; i < items.size(); ++i) {
+            this.setItem(i, inventoryPageOriginal.getItem(i));
         }
     }
 
