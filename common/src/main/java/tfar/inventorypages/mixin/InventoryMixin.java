@@ -19,11 +19,6 @@ public class InventoryMixin {
     @Final
     public Player player;
 
-    @Inject(method = "dropAll",at = @At("RETURN"))
-    private void dropExtraItems(CallbackInfo ci) {
-        ((PlayerDuck)player).inventoryPageList().dropAll();
-    }
-
     @Inject(method = "add(Lnet/minecraft/world/item/ItemStack;)Z",at = @At("HEAD"),cancellable = true)
     private void interceptItem(ItemStack itemStack, CallbackInfoReturnable<Boolean> cir) {
         InventoryPages.handle(player,itemStack,cir);

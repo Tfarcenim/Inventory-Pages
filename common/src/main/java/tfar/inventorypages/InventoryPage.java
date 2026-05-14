@@ -6,11 +6,14 @@ import net.minecraft.ReportedException;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.ContainerHelper;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class InventoryPage {
 
@@ -208,6 +211,10 @@ public class InventoryPage {
         return -1;
     }
 
-    public record Config(ItemStack icon, TagKey<Item> tag) {
+    public boolean canPlaceItem(int slot, @NotNull ItemStack stack) {
+        return config.tag == null || stack.is(config.tag);
+    }
+
+    public record Config(ItemStack icon, @Nullable TagKey<Item> tag, Component title, int pageColor) {
     }
 }

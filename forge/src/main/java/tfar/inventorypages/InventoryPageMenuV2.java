@@ -8,7 +8,7 @@ import net.minecraft.world.item.ItemStack;
 
 public class InventoryPageMenuV2 extends AbstractContainerMenu {
 
-    int page;
+    private DataSlot page = DataSlot.standalone();
 
     private final InventoryPageList inventoryPageList;
 
@@ -17,7 +17,7 @@ public class InventoryPageMenuV2 extends AbstractContainerMenu {
     }
 
 
-    public InventoryPageMenuV2(int containerId, Inventory inventory, final Player player, int page) {
+    public InventoryPageMenuV2(int containerId, Inventory inventory, final Player player, int startPage) {
         super(RegistryObjects.INVENTORY_PAGE_MENU_V2, containerId);
         inventoryPageList = ((PlayerDuck)player).inventoryPageList();
 
@@ -38,14 +38,20 @@ public class InventoryPageMenuV2 extends AbstractContainerMenu {
         for(int slot = 0; slot < 9; ++slot) {
             this.addSlot(new Slot(inventory, slot, 8 + slot * 18, 142));
         }
+        page.set(startPage);
+        addDataSlot(page);
     }
 
     public void setPage(int page) {
-        this.page = page;
+        this.page.set(page);
     }
 
-    InventoryPage getActivePage() {
-        return inventoryPageList.get(page);
+    public int getPage() {
+        return page.get();
+    }
+
+    public InventoryPage getActivePage() {
+        return inventoryPageList.get(getPage());
     }
 
     public class PageSlot extends Slot {
@@ -77,6 +83,16 @@ public class InventoryPageMenuV2 extends AbstractContainerMenu {
         public void setChanged() {
 
         }
+
+        @Override
+        public boolean mayPlace(ItemStack pStack) {
+            return getActivePage().canPlaceItem(getContainerSlot(), pStack);
+        }
+    }
+
+    @Override
+    public boolean clickMenuButton(Player pPlayer, int pId) {
+        return super.clickMenuButton(pPlayer, pId);
     }
 
     @Override

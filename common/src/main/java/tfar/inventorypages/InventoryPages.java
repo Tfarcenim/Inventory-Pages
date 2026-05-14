@@ -6,6 +6,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.stream.JsonReader;
 import net.minecraft.core.Registry;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.TagKey;
@@ -13,6 +14,9 @@ import net.minecraft.util.GsonHelper;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.GameRules;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
@@ -64,6 +68,7 @@ public class InventoryPages {
 
     public static final List<InventoryPage.Config> LIST = new ArrayList<>();
     public static boolean SHOW_POPUPS;
+    public static boolean KEEP_INV_PAGES;
 
     public static void load(JsonObject jsonObject) {
         LIST.clear();
@@ -72,12 +77,16 @@ public class InventoryPages {
 
         for  (JsonElement jsonElement : jsonArray) {
             JsonObject o =  jsonElement.getAsJsonObject();
-            ItemStack itemStack = new ItemStack(GsonHelper.getAsItem(o,"icon"));
-            TagKey<Item> tagKey = TagKey.create(Registry.ITEM_REGISTRY,new ResourceLocation(GsonHelper.getAsString(o,"tag")));
-            LIST.add(new InventoryPage.Config(itemStack,tagKey));
+            ItemStack itemStack = new ItemStack(GsonHelper.getAsItem(o,"icon", Items.BARRIER));
+            @Nullable TagKey<Item> tagKey = o.has("tag")? TagKey.create(Registry.ITEM_REGISTRY,
+                    new ResourceLocation(GsonHelper.getAsString(o,"tag"))):null;
+            Component title = Component.Serializer.fromJson(GsonHelper.getAsString(o,"title","{\"text\":\"Untitled Page\"}"));
+            int pageColor = Integer.decode(GsonHelper.getAsString(o,"page_color","0xffffffff"));
+            LIST.add(new InventoryPage.Config(itemStack,tagKey,title,pageColor));
         }
 
         SHOW_POPUPS = GsonHelper.getAsBoolean(jsonObject,"show_popups",true);
+        KEEP_INV_PAGES = GsonHelper.getAsBoolean(jsonObject,"keep_page_inventory_on_death",false);
 
         //MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
         //if (server != null) server.getPlayerList().getPlayers().forEach(player -> PacketHandler.sendToClient(new S2CConfigPacket(MAP),player));
@@ -91,6 +100,8 @@ public class InventoryPages {
             e.printStackTrace();
         }
     }
+
+
 
     public static ResourceLocation id(String path) {
         return new ResourceLocation(MOD_ID, path);
@@ -116,7 +127,7 @@ public class InventoryPages {
         for (int i = 0; i < LIST.size(); i++) {
             InventoryPage.Config config = LIST.get(i);
             TagKey<Item> tagKey = config.tag();
-            if (itemStack.is(tagKey)) {
+            if (tagKey == null || itemStack.is(tagKey)) {
                 return i;
             }
         }

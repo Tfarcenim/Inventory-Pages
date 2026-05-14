@@ -3,22 +3,36 @@ package tfar.inventorypages.network.server;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import tfar.inventorypages.InventoryPageMenuV2;
+import tfar.inventorypages.InventoryPagesForge;
+import tfar.inventorypages.network.PacketHandler;
 
 public enum C2SBackPacket implements C2SModPacket{
-    INSTANCE;
+    INSTANCE,INSTANCE2;
 
     public static C2SBackPacket fromPacket(FriendlyByteBuf buf) {
-        return INSTANCE;
+        return buf.readEnum(C2SBackPacket.class);
     }
 
     @Override
     public void handleServer(ServerPlayer player) {
-        if (player.containerMenu instanceof InventoryPageMenuV2) {
-            player.containerMenu = player.inventoryMenu;
+        switch (this) {
+            case INSTANCE -> {
+                if (player.containerMenu instanceof InventoryPageMenuV2) {
+                    player.containerMenu = player.inventoryMenu;
+                }
+            }
+            case INSTANCE2 -> {
+                InventoryPagesForge.moveToPages(player);
+            }
         }
+    }
+
+    public void send() {
+        PacketHandler.sendToServer(this);
     }
 
     @Override
     public void write(FriendlyByteBuf to) {
+        to.writeEnum(this);
     }
 }

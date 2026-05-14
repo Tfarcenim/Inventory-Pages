@@ -1,9 +1,18 @@
 {
   "show_popups" : true,
+  "keep_page_inventory_on_death" : true,
   "pages": [
     {
       "icon" : "minecraft:iron_pickaxe",
-      "tag" : "forge:tools"
+      "title" : "{\"text\":\"Tools\"}",
+      "tag" : "forge:tools",
+      "page_color": "#ff0000"
+    },
+    {
+      "icon" : "minecraft:diamond_chestplate",
+      "title" : "{\"text\":\"Armor\"}",
+      "tag" : "forge:armors",
+      "page_color": "#ff7f00"
     }
   ]
 }

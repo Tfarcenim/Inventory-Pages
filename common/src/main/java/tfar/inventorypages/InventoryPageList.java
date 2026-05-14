@@ -51,4 +51,9 @@ public class InventoryPageList extends ArrayList<InventoryPage> {
             inventoryPage.tick(player);
         }
     }
+
+    public int totalSlots() {
+        int total = this.stream().mapToInt(inventoryPage -> inventoryPage.items.size()).sum();
+        return total;
+    }
 }

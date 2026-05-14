@@ -9,6 +9,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import tfar.inventorypages.InventoryPageList;
+import tfar.inventorypages.InventoryPages;
 import tfar.inventorypages.PlayerDuck;
 
 @Mixin(Player.class)
@@ -20,6 +21,13 @@ public class PlayerMixin implements PlayerDuck {
     @Override
     public InventoryPageList inventoryPageList() {
         return inventoryPageList;
+    }
+
+    @Inject(method = "dropEquipment",at = @At("RETURN"))
+    private void dropPageInventory(CallbackInfo ci) {
+        if (!InventoryPages.KEEP_INV_PAGES) {
+            inventoryPageList.dropAll();
+        }
     }
 
     @Inject(method = "readAdditionalSaveData",at = @At("HEAD"))

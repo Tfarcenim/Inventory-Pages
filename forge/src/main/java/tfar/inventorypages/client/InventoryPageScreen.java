@@ -1,4 +1,4 @@
-package tfar.inventorypages;
+package tfar.inventorypages.client;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -16,6 +16,9 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.ClickType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
+import tfar.inventorypages.InventoryPage;
+import tfar.inventorypages.InventoryPageMenu;
+import tfar.inventorypages.InventoryPages;
 import tfar.inventorypages.network.PacketHandler;
 import tfar.inventorypages.network.server.C2SBackPacket;
 import tfar.inventorypages.network.server.C2SChangePagePacket;

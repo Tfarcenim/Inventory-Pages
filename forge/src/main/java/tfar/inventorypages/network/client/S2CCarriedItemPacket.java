@@ -2,7 +2,7 @@ package tfar.inventorypages.network.client;
 
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.item.ItemStack;
-import tfar.inventorypages.InventoryPagesClientForge;
+import tfar.inventorypages.client.InventoryPagesClientForge;
 
 
 public record S2CCarriedItemPacket(ItemStack carried) implements S2CModPacket {

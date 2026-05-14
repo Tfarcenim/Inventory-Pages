@@ -8,7 +8,6 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
-import tfar.inventorypages.InventoryPageMenu;
 import tfar.inventorypages.InventoryPageMenuV2;
 import tfar.inventorypages.network.PacketHandler;
 import tfar.inventorypages.network.client.S2CCarriedItemPacket;
@@ -28,7 +27,7 @@ public record C2SChangePagePacket(int index) implements C2SModPacket{
             player.openMenu(new MenuProvider() {
                 @Override
                 public Component getDisplayName() {
-                    return Component.translatable("container.inventory");
+                    return Component.empty();
                 }
 
                 @Override

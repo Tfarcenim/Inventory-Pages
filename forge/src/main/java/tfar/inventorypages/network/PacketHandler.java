@@ -25,12 +25,14 @@ public class PacketHandler {
     public static void registerPackets() {
         registerClientPackets();
         registerServerPacket(C2SChangePagePacket.class, C2SChangePagePacket::new);
+        registerServerPacket(C2SPacketRequestDropoff.class, C2SPacketRequestDropoff::new);
         registerServerPacket(C2SBackPacket.class, C2SBackPacket::fromPacket);
     }
 
     public static void registerClientPackets() {
         registerClientPacket(S2CCarriedItemPacket.class, S2CCarriedItemPacket::new);
         registerClientPacket(S2CToastPacket.class, S2CToastPacket::new);
+        registerClientPacket(S2CReportPacket.class, S2CReportPacket::new);
     }
 
     static int i;

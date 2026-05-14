@@ -34,7 +34,7 @@ public class InventoryPageMenu extends RecipeBookMenu<CraftingContainer> {
     private final ResultContainer resultSlots = new ResultContainer();
     private final Player owner;
 
-    int page;
+    public int page;
 
     private final InventoryPageList inventoryPageList;
 
