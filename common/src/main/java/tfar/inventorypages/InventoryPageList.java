@@ -7,7 +7,7 @@ import net.minecraft.world.entity.player.Player;
 import java.util.ArrayList;
 
 public class InventoryPageList extends ArrayList<InventoryPage> {
-    private final Player player;
+    final Player player;
     public InventoryPageList(Player player) {
         this.player = player;
         for (int i = 0; i < InventoryPages.LIST.size(); i++) {

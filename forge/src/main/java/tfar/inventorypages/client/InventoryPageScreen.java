@@ -89,7 +89,7 @@ public class InventoryPageScreen extends EffectRenderingInventoryScreen<Inventor
         addPages();
     }
 
-    public static final int TOP = 60;
+    private static final int TOP = 60;
 
     void updateButtonPositions() {
         for (InventoryPageButton button : this.pageButtons) {

@@ -1,5 +1,8 @@
 package tfar.inventorypages;
 
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.protocol.game.ClientboundContainerSetContentPacket;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -8,13 +11,9 @@ import net.minecraft.world.item.ItemStack;
 
 public class InventoryPageMenuV2 extends AbstractContainerMenu {
 
-    private DataSlot page = DataSlot.standalone();
+    private final DataSlot page = DataSlot.standalone();
 
     private final InventoryPageList inventoryPageList;
-
-    public InventoryPageMenuV2(int i, Inventory inventory) {
-        this(i,inventory, inventory.player,0);
-    }
 
 
     public InventoryPageMenuV2(int containerId, Inventory inventory, final Player player, int startPage) {
@@ -42,8 +41,16 @@ public class InventoryPageMenuV2 extends AbstractContainerMenu {
         addDataSlot(page);
     }
 
+    public InventoryPageMenuV2(int i, Inventory inventory, FriendlyByteBuf buf) {
+        this(i,inventory,inventory.player,buf.readInt());
+    }
+
     public void setPage(int page) {
         this.page.set(page);
+        if (inventoryPageList.player instanceof ServerPlayer serverPlayer) {
+            serverPlayer.connection.send(new ClientboundContainerSetContentPacket(containerId, incrementStateId(), inventoryPageList.get(page).items
+                    , getCarried()));
+        }
     }
 
     public int getPage() {
@@ -88,6 +95,11 @@ public class InventoryPageMenuV2 extends AbstractContainerMenu {
         public boolean mayPlace(ItemStack pStack) {
             return getActivePage().canPlaceItem(getContainerSlot(), pStack);
         }
+    }
+
+    @Override
+    public void setData(int pId, int pData) {
+        super.setData(pId, pData);
     }
 
     @Override

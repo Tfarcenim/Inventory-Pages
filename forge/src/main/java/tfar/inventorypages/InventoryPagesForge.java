@@ -75,6 +75,7 @@ public class InventoryPagesForge {
 
     void register(RegisterEvent event) {
         event.register(Registry.MENU_REGISTRY,InventoryPages.id("menu"),() -> RegistryObjects.INVENTORY_PAGE_MENU);
+        event.register(Registry.MENU_REGISTRY,InventoryPages.id("menu_v2"),() -> RegistryObjects.INVENTORY_PAGE_MENU_V2);
     }
 
     public static CombinedInvWrapper makeWrapper(InventoryPageList list) {

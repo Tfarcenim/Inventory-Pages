@@ -2,6 +2,7 @@ package tfar.inventorypages.network.server;
 
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.inventory.InventoryMenu;
 import tfar.inventorypages.InventoryPageMenuV2;
 import tfar.inventorypages.InventoryPagesForge;
 import tfar.inventorypages.network.PacketHandler;
@@ -18,7 +19,10 @@ public enum C2SBackPacket implements C2SModPacket{
         switch (this) {
             case INSTANCE -> {
                 if (player.containerMenu instanceof InventoryPageMenuV2) {
-                    player.containerMenu = player.inventoryMenu;
+
+                    if (player.containerMenu instanceof InventoryMenu) {
+                        player.containerMenu = player.inventoryMenu;
+                    }
                 }
             }
             case INSTANCE2 -> {

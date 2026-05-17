@@ -2,7 +2,10 @@ package tfar.inventorypages.client;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
@@ -20,15 +23,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class InventoryPageScreenV2 extends AbstractContainerScreen<InventoryPageMenuV2> {
-    private float xMouse;
-    private float yMouse;
 
 
     private BackButton backButton;
     private List<InventoryPageButton> pageButtons = new ArrayList<>();
+    private final Screen parent;
 
     public InventoryPageScreenV2(InventoryPageMenuV2 inventoryPageMenu, Inventory $$0, Component $$1) {
         super(inventoryPageMenu, $$0, $$1);
+        parent = Minecraft.getInstance().screen;
     }
 
     @Override
@@ -40,13 +43,11 @@ public class InventoryPageScreenV2 extends AbstractContainerScreen<InventoryPage
                 b -> {
                     //open vanilla inventory
                     C2SBackPacket.INSTANCE.send();
-                    ItemStack stack = minecraft.player.containerMenu.getCarried();
-                    minecraft.player.containerMenu.setCarried(ItemStack.EMPTY);
-                    if (minecraft.gameMode.isServerControlledInventory()) {//opens vehicle inventory
-                        minecraft.player.sendOpenInventory();
-                    } else {
+                    if (parent instanceof InventoryScreen || parent instanceof CreativeModeInventoryScreen) {
+                        ItemStack stack = minecraft.player.containerMenu.getCarried();
+                        minecraft.player.containerMenu.setCarried(ItemStack.EMPTY);
                         //this.tutorial.onOpenInventory();
-                        minecraft.setScreen(new InventoryScreen(minecraft.player));
+                        minecraft.setScreen(parent);
                         minecraft.player.containerMenu = minecraft.player.inventoryMenu;
                         minecraft.player.containerMenu.setCarried(stack);
                     }

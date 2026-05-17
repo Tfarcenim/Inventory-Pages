@@ -8,6 +8,8 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.client.gui.screens.inventory.ContainerScreen;
+import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.LevelRenderer;
@@ -19,6 +21,7 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraftforge.client.event.RenderLevelStageEvent;
 import net.minecraftforge.client.event.ScreenEvent;
+import net.minecraftforge.client.gui.overlay.IGuiOverlay;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
@@ -38,6 +41,10 @@ public class InventoryPagesClientForge {
         bus.addListener(InventoryPagesClientForge::setup);
     }
 
+    public static final IGuiOverlay OVERLAY = (gui, poseStack, partialTick, screenWidth, screenHeight) -> {
+        
+    };
+
     static void setup(FMLClientSetupEvent event) {
         MenuScreens.register(RegistryObjects.INVENTORY_PAGE_MENU, InventoryPageScreen::new);
         MenuScreens.register(RegistryObjects.INVENTORY_PAGE_MENU_V2, InventoryPageScreenV2::new);
@@ -47,54 +54,58 @@ public class InventoryPagesClientForge {
 
     static void addButtons(ScreenEvent.Init.Post event) {
         Screen screen = event.getScreen();
-        if (screen instanceof InventoryScreen inventoryScreen) {
-            int buttons = InventoryPages.LIST.size();
-            for (int i = 0; i < buttons; i++) {
-                int finalI = i;
-                event.addListener(new InventoryPageButton(inventoryScreen.getGuiLeft()-20, inventoryScreen.getGuiTop()+ 20 * i +
-                        InventoryPageScreenV2.TOP+20,
-                        20,20,Component.empty(),
-                        b -> {
-                            PacketHandler.sendToServer(new C2SChangePagePacket(finalI));
-                        },finalI));
+        if (screen instanceof AbstractContainerScreen<?> abstractContainerScreen) {
+
+            int leftPos = abstractContainerScreen.getGuiLeft();
+            int topPos = abstractContainerScreen.getGuiTop();
+
+            if (abstractContainerScreen instanceof InventoryScreen || abstractContainerScreen instanceof CreativeModeInventoryScreen ||abstractContainerScreen instanceof ContainerScreen) {
+                int buttons = InventoryPages.LIST.size();
+                for (int i = 0; i < buttons; i++) {
+                    int finalI = i;
+                    event.addListener(new InventoryPageButton(leftPos - 20, topPos + 20 * i +
+                            InventoryPageScreenV2.TOP + 20,
+                            20, 20, Component.empty(),
+                            b -> {
+                                PacketHandler.sendToServer(new C2SChangePagePacket(finalI));
+                            }, finalI));
+                }
             }
-        }
 
-        if (!canDisplay(event.getScreen()) || !DropOffConfig.Client.showInventoryButton.get()) {
-            return;
-        }
+            if (!canDisplay(event.getScreen()) || !DropOffConfig.Client.showInventoryButton.get()) {
+                return;
+            }
 
-        AbstractContainerScreen<?> containerScreen = (AbstractContainerScreen<?>) event.getScreen();
 
-        boolean isCreative = Minecraft.getInstance().player.getAbilities().instabuild;
+            boolean isCreative = Minecraft.getInstance().player.getAbilities().instabuild;
 
-        int xPos = containerScreen.getGuiLeft() + 80 +
-                (isCreative ? DropOffConfig.Client.creativeInventoryButtonXOffset.get()
-                        : DropOffConfig.Client.survivalInventoryButtonXOffset.get());
-        int yPos = containerScreen.getGuiTop() + 80
-                + (isCreative ? DropOffConfig.Client.creativeInventoryButtonYOffset.get()
-                : DropOffConfig.Client.survivalInventoryButtonYOffset.get());
-        if (DropOffConfig.Client.enableDump.get()) {
-            DropoffButton dump = new DropoffButton(xPos, yPos,10,14,Component.literal("^"), b -> actionPerformed(true),
+            int xPos = leftPos + 80 +
+                    (isCreative ? DropOffConfig.Client.creativeInventoryButtonXOffset.get()
+                            : DropOffConfig.Client.survivalInventoryButtonXOffset.get());
+            int yPos = topPos + 80
+                    + (isCreative ? DropOffConfig.Client.creativeInventoryButtonYOffset.get()
+                    : DropOffConfig.Client.survivalInventoryButtonYOffset.get());
+            if (DropOffConfig.Client.enableDump.get()) {
+                DropoffButton dump = new DropoffButton(xPos, yPos, 10, 14, Component.literal("^"), b -> actionPerformed(true),
+                        (pButton, pPoseStack, pMouseX, pMouseY) -> {
+                            screen.renderTooltip(pPoseStack, Component.translatable("dropoff.dump_nearby"), pMouseX, pMouseY);
+                        });
+                event.addListener(dump);
+            }
+
+            if (screen instanceof InventoryScreen) {
+                event.addListener(new MoveToPagesButton(xPos + 24, yPos, 10, 14, Component.literal("^"), b -> C2SBackPacket.INSTANCE2.send(),
+                        (pButton, pPoseStack, pMouseX, pMouseY) -> {
+                            screen.renderTooltip(pPoseStack, Component.translatable("dropoff.move_to_pages"), pMouseX, pMouseY);
+                        }));
+            }
+
+            DropoffButton deposit = new DropoffButton(xPos + 12, yPos, 10, 14, Component.literal("^"), b -> actionPerformed(false),
                     (pButton, pPoseStack, pMouseX, pMouseY) -> {
-                        containerScreen.renderTooltip(pPoseStack,Component.translatable("dropoff.dump_nearby"),pMouseX,pMouseY);
+                        screen.renderTooltip(pPoseStack, Component.translatable("dropoff.quick_stack"), pMouseX, pMouseY);
                     });
-            event.addListener(dump);
+            event.addListener(deposit);
         }
-
-        if (screen instanceof InventoryScreen) {
-            event.addListener(new MoveToPagesButton(xPos+24, yPos,10,14,Component.literal("^"), b -> C2SBackPacket.INSTANCE2.send(),
-                    (pButton, pPoseStack, pMouseX, pMouseY) -> {
-                        containerScreen.renderTooltip(pPoseStack,Component.translatable("dropoff.move_to_pages"),pMouseX,pMouseY);
-                    }));
-        }
-
-        DropoffButton deposit = new DropoffButton(xPos + 12, yPos,10,14,Component.literal("^"),b -> actionPerformed(false),
-                (pButton, pPoseStack, pMouseX, pMouseY) -> {
-                    containerScreen.renderTooltip(pPoseStack,Component.translatable("dropoff.quick_stack"),pMouseX,pMouseY);
-                });
-        event.addListener(deposit);
-
     }
 
     public static void handle(S2CCarriedItemPacket packet) {
