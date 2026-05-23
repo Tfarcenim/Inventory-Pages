@@ -11,10 +11,7 @@ import tfar.inventorypages.InventoryPages;
 import tfar.inventorypages.network.client.S2CCarriedItemPacket;
 import tfar.inventorypages.network.client.S2CModPacket;
 import tfar.inventorypages.network.client.S2CPopupPacket;
-import tfar.inventorypages.network.server.C2SBackPacket;
-import tfar.inventorypages.network.server.C2SCarriedItemPacket;
-import tfar.inventorypages.network.server.C2SChangePagePacket;
-import tfar.inventorypages.network.server.C2SModPacket;
+import tfar.inventorypages.network.server.*;
 
 
 import java.util.function.BiConsumer;
@@ -29,12 +26,14 @@ public class PacketHandler {
         registerServerPacket(C2SPacketRequestDropoff.class, C2SPacketRequestDropoff::new);
         registerServerPacket(C2SBackPacket.class, C2SBackPacket::fromPacket);
         registerServerPacket(C2SCarriedItemPacket.class, C2SCarriedItemPacket::new);
+        registerServerPacket(C2SPickBlockPacket.class,C2SPickBlockPacket::new);
     }
 
     public static void registerClientPackets() {
         registerClientPacket(S2CCarriedItemPacket.class, S2CCarriedItemPacket::new);
         registerClientPacket(S2CPopupPacket.class, S2CPopupPacket::new);
         registerClientPacket(S2CReportPacket.class, S2CReportPacket::new);
+        registerClientPacket(S2CSetSelectedPacket.class, S2CSetSelectedPacket::new);
     }
 
     static int i;

@@ -2,13 +2,12 @@ package tfar.inventorypages.network.server;
 
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.inventory.InventoryMenu;
 import tfar.inventorypages.InventoryPageMenuV2;
 import tfar.inventorypages.InventoryPagesForge;
 import tfar.inventorypages.network.PacketHandler;
 
 public enum C2SBackPacket implements C2SModPacket{
-    INSTANCE,INSTANCE2;
+    PICK_BLOCK,INSTANCE2;
 
     public static C2SBackPacket fromPacket(FriendlyByteBuf buf) {
         return buf.readEnum(C2SBackPacket.class);
@@ -17,10 +16,8 @@ public enum C2SBackPacket implements C2SModPacket{
     @Override
     public void handleServer(ServerPlayer player) {
         switch (this) {
-            case INSTANCE -> {
-                if (player.containerMenu instanceof InventoryPageMenuV2) {
-                    player.containerMenu = player.inventoryMenu;
-                }
+            case PICK_BLOCK -> {
+
             }
             case INSTANCE2 -> {
                 InventoryPagesForge.moveToPages(player);

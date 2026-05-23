@@ -10,11 +10,13 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.ContainerHelper;
+import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import tfar.inventorypages.network.S2CSetSelectedPacket;
 import tfar.inventorypages.network.client.S2CPopupPacket;
 import tfar.inventorypages.platform.Services;
 
@@ -219,10 +221,36 @@ public class InventoryPage {
                 if (InventoryPages.SHOW_POPUPS && player instanceof ServerPlayer serverPlayer && current.getCount() != itemStack.getCount()) {
                     Services.PLATFORM.sendToClient(new S2CPopupPacket(page, current), serverPlayer);
                 }
-                if (fullyHandled) {
-                    return true;
-                }
-        return false;
+        return fullyHandled;
+    }
+
+
+    public int findSlotMatchingItem(ItemStack pStack) {
+        for(int i = 0; i < this.items.size(); ++i) {
+            if (!this.items.get(i).isEmpty() && ItemStack.isSameItemSameTags(pStack, this.items.get(i))) {
+                return i;
+            }
+        }
+
+        return -1;
+    }
+
+    public void pickSlot(Player player,int index) {
+        Inventory inventory = player.getInventory();
+        inventory.selected = inventory.getSuitableHotbarSlot();
+
+        ItemStack itemStack = inventory.getItem(inventory.selected);
+        inventory.setItem(inventory.selected, this.items.get(index));
+        this.items.set(index, itemStack);
+        if (player instanceof ServerPlayer serverPlayer) {
+            Services.PLATFORM.sendToClient(new S2CSetSelectedPacket(inventory.selected),serverPlayer);
+        }
+    }
+
+    public void clearItems() {
+        for (int i  = 0; i < this.items.size(); ++i) {
+            setItem(i, ItemStack.EMPTY);
+        }
     }
 
     public record Config(ItemStack icon, @Nullable TagKey<Item> tag, Component title, int pageColor) {

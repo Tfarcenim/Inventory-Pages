@@ -6,6 +6,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.GameRules;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.AddReloadListenerEvent;
+import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -29,11 +30,13 @@ public class InventoryPagesForge {
     
     public InventoryPagesForge() {
         IEventBus eventbus = FMLJavaModLoadingContext.get().getModEventBus();
+        eventbus.addListener(ModDatagen::gather);
+        eventbus.addListener(this::register);
+
         MinecraftForge.EVENT_BUS.addListener(this::reload);
         MinecraftForge.EVENT_BUS.addListener(this::onPlayerClone);
         MinecraftForge.EVENT_BUS.addListener(this::tick);
-        MinecraftForge.EVENT_BUS.addListener(ModDatagen::gather);
-        eventbus.addListener(this::register);
+        MinecraftForge.EVENT_BUS.addListener(this::commands);
         // This method is invoked by the Forge mod loader when it is ready
         // to load your mod. You can access Forge and Common code in this
         // project.
@@ -50,6 +53,10 @@ public class InventoryPagesForge {
 
         // Use Forge to bootstrap the Common mod.
         InventoryPages.init();
+    }
+
+    void commands(RegisterCommandsEvent e) {
+        InventoryPages.registerCommands(e.getDispatcher());
     }
 
     void tick(TickEvent.PlayerTickEvent event) {

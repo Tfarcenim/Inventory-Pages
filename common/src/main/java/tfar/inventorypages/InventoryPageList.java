@@ -1,8 +1,10 @@
 package tfar.inventorypages;
 
+import com.mojang.datafixers.util.Pair;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 
 import java.util.ArrayList;
 
@@ -56,5 +58,21 @@ public class InventoryPageList extends ArrayList<InventoryPage> {
     public int totalSlots() {
         int total = this.stream().mapToInt(inventoryPage -> inventoryPage.items.size()).sum();
         return total;
+    }
+
+    public Pair<Integer, Integer> findMatchingItem(ItemStack itemstack) {
+        for (int i = 0; i < this.size(); i++) {
+            InventoryPage inventoryPage = this.get(i);
+            int slot = inventoryPage.findSlotMatchingItem(itemstack);
+            if (slot != -1) {
+                return new Pair<>(i, slot);
+            }
+        }
+        return null;
+    }
+
+    public void pickSlotAndPage(Pair<Integer, Integer> pageSlot) {
+        InventoryPage page = get(pageSlot.getFirst());
+        page.pickSlot(player,pageSlot.getSecond());
     }
 }

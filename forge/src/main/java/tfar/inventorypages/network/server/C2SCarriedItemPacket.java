@@ -22,6 +22,8 @@ public record C2SCarriedItemPacket(ItemStack carried) implements C2SModPacket {
                 if (!player.isCreative()) {
                     player.containerMenu.setCarried(stack);
                     Services.PLATFORM.sendToClient(new S2CCarriedItemPacket(stack), player);
+                } else {
+                    Services.PLATFORM.sendToClient(new S2CCarriedItemPacket(stack), player);
                 }
             }
         }

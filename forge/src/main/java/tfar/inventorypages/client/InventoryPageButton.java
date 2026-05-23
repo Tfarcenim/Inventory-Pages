@@ -6,11 +6,9 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
-import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
 import tfar.inventorypages.InventoryPage;
 import tfar.inventorypages.InventoryPages;
 import tfar.inventorypages.PlayerDuck;
@@ -36,10 +34,9 @@ public class InventoryPageButton extends Button {
                             inventoryPageScreen.getMenu().setPage(page);
                         }
                         PacketHandler.sendToServer(new C2SChangePagePacket(page));
-                      //  if (player.containerMenu instanceof CreativeModeInventoryScreen.ItemPickerMenu menu) {
-                       //    PacketHandler.sendToServer(new C2SCarriedItemPacket(menu.getCarried().copy()));
-                       //     menu.setCarried(ItemStack.EMPTY);
-                       // }
+                        if (player.isCreative()) {
+                           PacketHandler.sendToServer(new C2SCarriedItemPacket(player.inventoryMenu.getCarried()));
+                        }
                     }
                 },
                 (pButton, pPoseStack, pMouseX, pMouseY) -> {

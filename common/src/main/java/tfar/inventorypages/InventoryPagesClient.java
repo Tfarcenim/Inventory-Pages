@@ -3,6 +3,7 @@ package tfar.inventorypages;
 import com.google.common.collect.Queues;
 import net.minecraft.client.Minecraft;
 import tfar.inventorypages.client.ClientPopup;
+import tfar.inventorypages.network.S2CSetSelectedPacket;
 import tfar.inventorypages.network.client.S2CPopupPacket;
 
 import java.util.ArrayList;
@@ -30,5 +31,9 @@ public class InventoryPagesClient {
             }
         }
         popups.removeAll(forRemoval);
+    }
+
+    public static void handleSelected(S2CSetSelectedPacket packet) {
+        Minecraft.getInstance().player.getInventory().selected = packet.selected();
     }
 }

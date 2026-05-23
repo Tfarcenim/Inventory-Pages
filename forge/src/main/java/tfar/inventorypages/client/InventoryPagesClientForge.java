@@ -4,11 +4,9 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
-import net.minecraft.client.gui.screens.inventory.ContainerScreen;
 import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.client.player.LocalPlayer;
@@ -16,6 +14,8 @@ import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.Shapes;
@@ -31,8 +31,9 @@ import tfar.inventorypages.*;
 import tfar.inventorypages.network.C2SPacketRequestDropoff;
 import tfar.inventorypages.network.PacketHandler;
 import tfar.inventorypages.network.client.S2CCarriedItemPacket;
+import tfar.inventorypages.network.S2CSetSelectedPacket;
 import tfar.inventorypages.network.server.C2SBackPacket;
-import tfar.inventorypages.network.server.C2SChangePagePacket;
+import tfar.inventorypages.network.server.C2SPickBlockPacket;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -124,11 +125,21 @@ public class InventoryPagesClientForge {
     }
 
     public static void handle(S2CCarriedItemPacket packet) {
-        Minecraft.getInstance().player.containerMenu.setCarried(packet.carried());
+        Minecraft mc = Minecraft.getInstance();
+        Player player = mc.player;
+
+        if (player.containerMenu != player.inventoryMenu) {
+            player.inventoryMenu.setCarried(ItemStack.EMPTY);
+        }
+        player.containerMenu.setCarried(packet.carried());
     }
 
     public static void onRenderWorldLastEvent(RenderLevelStageEvent event) {
         RendererCube.tryToRender(event);
+    }
+
+    public static void tryPickBlock(ItemStack itemstack) {
+        PacketHandler.sendToServer(new C2SPickBlockPacket(itemstack));
     }
 
     public static class RendererCube {
