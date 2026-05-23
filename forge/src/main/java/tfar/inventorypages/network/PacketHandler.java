@@ -10,8 +10,9 @@ import net.minecraftforge.network.simple.SimpleChannel;
 import tfar.inventorypages.InventoryPages;
 import tfar.inventorypages.network.client.S2CCarriedItemPacket;
 import tfar.inventorypages.network.client.S2CModPacket;
-import tfar.inventorypages.network.client.S2CToastPacket;
+import tfar.inventorypages.network.client.S2CPopupPacket;
 import tfar.inventorypages.network.server.C2SBackPacket;
+import tfar.inventorypages.network.server.C2SCarriedItemPacket;
 import tfar.inventorypages.network.server.C2SChangePagePacket;
 import tfar.inventorypages.network.server.C2SModPacket;
 
@@ -27,11 +28,12 @@ public class PacketHandler {
         registerServerPacket(C2SChangePagePacket.class, C2SChangePagePacket::new);
         registerServerPacket(C2SPacketRequestDropoff.class, C2SPacketRequestDropoff::new);
         registerServerPacket(C2SBackPacket.class, C2SBackPacket::fromPacket);
+        registerServerPacket(C2SCarriedItemPacket.class, C2SCarriedItemPacket::new);
     }
 
     public static void registerClientPackets() {
         registerClientPacket(S2CCarriedItemPacket.class, S2CCarriedItemPacket::new);
-        registerClientPacket(S2CToastPacket.class, S2CToastPacket::new);
+        registerClientPacket(S2CPopupPacket.class, S2CPopupPacket::new);
         registerClientPacket(S2CReportPacket.class, S2CReportPacket::new);
     }
 

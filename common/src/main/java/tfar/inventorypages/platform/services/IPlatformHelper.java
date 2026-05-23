@@ -42,4 +42,6 @@ public interface IPlatformHelper {
     Path getConfigDirectory();
 
     void sendToClient(S2CModPacket packet, ServerPlayer player);
+
+    int getMaxStackSizeBiggerStacks();
 }

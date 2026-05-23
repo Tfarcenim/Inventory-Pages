@@ -59,7 +59,8 @@ minecraft {
         data {
             workingDirectory project.file('run')
             ideaModule "${rootProject.name}.${project.name}.main"
-            args '--mod', mod_id, '--all', '--output', file('src/generated/resources/'), '--existing', file('src/main/resources/')
+            args '--mod', mod_id, '--all', '--output',project(":common").file('src/generated/resources/'),
+                    '--existing',project(":common").file('src/main/resources/')
             taskName 'Data'
             property 'mixin.env.remapRefMap', 'true'
             property 'mixin.env.refMapRemappingFile', "${projectDir}/build/createSrgToMcp/output.srg"
@@ -79,6 +80,11 @@ dependencies {
     minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
     compileOnly project(":common")
     annotationProcessor("org.spongepowered:mixin:0.8.5-SNAPSHOT:processor")
+
+    //implementation fg.deobf("curse.maven:pick-up-notifier-351441:4401357")
+    //implementation fg.deobf("curse.maven:puzzles-lib-495476:4600775")
+
+    implementation fg.deobf("curse.maven:bigger-stacks-564896:7670825")
 }
 
 tasks.withType(JavaCompile).configureEach {

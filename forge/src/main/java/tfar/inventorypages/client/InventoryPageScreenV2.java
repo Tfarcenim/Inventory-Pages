@@ -2,21 +2,16 @@ package tfar.inventorypages.client;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
-import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
-import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.item.ItemStack;
 import tfar.inventorypages.DropOffConfig;
 import tfar.inventorypages.InventoryPageMenuV2;
 import tfar.inventorypages.InventoryPages;
 import tfar.inventorypages.network.PacketHandler;
-import tfar.inventorypages.network.server.C2SBackPacket;
 import tfar.inventorypages.network.server.C2SChangePagePacket;
 
 import java.util.ArrayList;
@@ -27,11 +22,9 @@ public class InventoryPageScreenV2 extends AbstractContainerScreen<InventoryPage
 
     private BackButton backButton;
     private List<InventoryPageButton> pageButtons = new ArrayList<>();
-    private final Screen parent;
 
     public InventoryPageScreenV2(InventoryPageMenuV2 inventoryPageMenu, Inventory $$0, Component $$1) {
         super(inventoryPageMenu, $$0, $$1);
-        parent = Minecraft.getInstance().screen;
     }
 
     @Override
@@ -40,18 +33,7 @@ public class InventoryPageScreenV2 extends AbstractContainerScreen<InventoryPage
         pageButtons.clear();
         backButton = new BackButton(leftPos - 20, topPos + TOP,
                 20, 20, Component.literal("B"),
-                b -> {
-                    //open vanilla inventory
-                    C2SBackPacket.INSTANCE.send();
-                    if (parent instanceof InventoryScreen || parent instanceof CreativeModeInventoryScreen) {
-                        ItemStack stack = minecraft.player.containerMenu.getCarried();
-                        minecraft.player.containerMenu.setCarried(ItemStack.EMPTY);
-                        //this.tutorial.onOpenInventory();
-                        minecraft.setScreen(parent);
-                        minecraft.player.containerMenu = minecraft.player.inventoryMenu;
-                        minecraft.player.containerMenu.setCarried(stack);
-                    }
-                },
+
                 (pButton, pPoseStack, pMouseX, pMouseY) -> {
 
                 });
@@ -66,12 +48,8 @@ public class InventoryPageScreenV2 extends AbstractContainerScreen<InventoryPage
         int buttons = InventoryPages.LIST.size();
         for (int i = 0; i < buttons; i++) {
             int finalI = i;
-            InventoryPageButton pageButton = new InventoryPageButton(leftPos - 20, topPos + 20 * i + TOP + 20,
-                    20, 20, Component.empty(),
-                    b -> {
-                        menu.setPage(finalI);
-                        PacketHandler.sendToServer(new C2SChangePagePacket(finalI));
-                    }, finalI);
+            InventoryPageButton pageButton = new InventoryPageButton(this,leftPos - 20, topPos + 20 * i + TOP + 20,
+                    20, 20, Component.empty(), finalI);
             pageButtons.add(pageButton);
             addRenderableWidget(pageButton);
         }
@@ -99,6 +77,11 @@ public class InventoryPageScreenV2 extends AbstractContainerScreen<InventoryPage
     protected void renderLabels(PoseStack $$0, int pMouseX, int pMouseY) {
         this.font.draw($$0, menu.getActivePage().config.title(), this.titleLabelX, this.titleLabelY, 0x404040);
         this.font.draw($$0, this.title, inventoryLabelX, inventoryLabelY, 0x404040);
+    }
+
+    @Override
+    protected boolean hasClickedOutside(double pMouseX, double pMouseY, int pGuiLeft, int pGuiTop, int pMouseButton) {
+        return super.hasClickedOutside(pMouseX, pMouseY, pGuiLeft, pGuiTop, pMouseButton) && pageButtons.stream().noneMatch(AbstractWidget::isHoveredOrFocused);
     }
 
     @Override

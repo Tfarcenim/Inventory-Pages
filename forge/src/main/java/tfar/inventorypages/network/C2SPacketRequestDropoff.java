@@ -13,6 +13,7 @@ import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.items.wrapper.CombinedInvWrapper;
 import net.minecraftforge.items.wrapper.InvWrapper;
+import net.minecraftforge.items.wrapper.PlayerMainInvWrapper;
 import net.minecraftforge.network.PacketDistributor;
 import org.apache.commons.lang3.mutable.MutableInt;
 import tfar.inventorypages.*;
@@ -75,7 +76,7 @@ public record C2SPacketRequestDropoff(boolean ignoreHotbar, boolean dump, List<B
 
 
     public int dropOff(Player player, IItemHandler target, SuccedableInventoryData data) {
-        IItemHandlerModifiable playerstacks = new InvWrapper(player.getInventory());
+        IItemHandlerModifiable playerstacks = new PlayerMainInvWrapper(player.getInventory());
 
         playerstacks = new CombinedInvWrapper(playerstacks,InventoryPagesForge.makeWrapper(((PlayerDuck)player).inventoryPageList()));
 
@@ -104,7 +105,7 @@ public record C2SPacketRequestDropoff(boolean ignoreHotbar, boolean dump, List<B
     }
 
     public int dropOffExisting(Player player, IItemHandler target, SuccedableInventoryData data) {
-        IItemHandlerModifiable playerstacks = new InvWrapper(player.getInventory());
+        IItemHandlerModifiable playerstacks = new PlayerMainInvWrapper(player.getInventory());
 
         playerstacks = new CombinedInvWrapper(playerstacks,InventoryPagesForge.makeWrapper(((PlayerDuck)player).inventoryPageList()));
 

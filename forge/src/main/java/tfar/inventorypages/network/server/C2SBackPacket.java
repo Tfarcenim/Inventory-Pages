@@ -19,10 +19,7 @@ public enum C2SBackPacket implements C2SModPacket{
         switch (this) {
             case INSTANCE -> {
                 if (player.containerMenu instanceof InventoryPageMenuV2) {
-
-                    if (player.containerMenu instanceof InventoryMenu) {
-                        player.containerMenu = player.inventoryMenu;
-                    }
+                    player.containerMenu = player.inventoryMenu;
                 }
             }
             case INSTANCE2 -> {

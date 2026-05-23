@@ -1,12 +1,34 @@
 package tfar.inventorypages;
 
+import com.google.common.collect.Queues;
 import net.minecraft.client.Minecraft;
-import tfar.inventorypages.network.client.S2CToastPacket;
+import tfar.inventorypages.client.ClientPopup;
+import tfar.inventorypages.network.client.S2CPopupPacket;
+
+import java.util.ArrayList;
+import java.util.Deque;
+import java.util.List;
 
 public class InventoryPagesClient {
-    public static void handle(S2CToastPacket packet) {
+    public static void handle(S2CPopupPacket packet) {
         InventoryPageList inventoryPageList = ((PlayerDuck)Minecraft.getInstance().player).inventoryPageList();
         InventoryPage inventoryPage = inventoryPageList.get(packet.page());
-        Minecraft.getInstance().getToasts().addToast(new InventoryPageToast(inventoryPage.config.icon(),packet.pickedUp()));
+        addPopup(new ClientPopup(packet.page(), packet.pickedUp(),popups.size()));
+    }
+
+    public static final Deque<ClientPopup> popups = Queues.newArrayDeque();
+
+    static void addPopup(ClientPopup popup) {
+        popups.add(popup);
+    }
+
+    public static void tickPopups() {
+        List<ClientPopup> forRemoval = new ArrayList<>();
+        for (ClientPopup popup : popups) {
+            if (popup.tick()) {
+                forRemoval.add(popup);
+            }
+        }
+        popups.removeAll(forRemoval);
     }
 }

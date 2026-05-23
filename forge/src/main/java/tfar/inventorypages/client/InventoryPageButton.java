@@ -5,22 +5,43 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import tfar.inventorypages.InventoryPage;
 import tfar.inventorypages.InventoryPages;
 import tfar.inventorypages.PlayerDuck;
+import tfar.inventorypages.network.PacketHandler;
+import tfar.inventorypages.network.server.C2SCarriedItemPacket;
+import tfar.inventorypages.network.server.C2SChangePagePacket;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 public class InventoryPageButton extends Button {
+    private final AbstractContainerScreen<?> parent;
     private final int page;
 
 
-    public InventoryPageButton(int pX, int pY, int pWidth, int pHeight, Component pMessage, OnPress pOnPress, int page) {
-        super(pX, pY, pWidth, pHeight, pMessage, pOnPress,
+    public InventoryPageButton(AbstractContainerScreen<?> parent,int pX, int pY, int pWidth, int pHeight, Component pMessage, int page) {
+        super(pX, pY, pWidth, pHeight, pMessage, b -> {
+                    Minecraft mc = Minecraft.getInstance();
+                    Player player = mc.player;
+                    if (player != null) {
+                        if (parent instanceof InventoryPageScreenV2 inventoryPageScreen) {
+                            inventoryPageScreen.getMenu().setPage(page);
+                        }
+                        PacketHandler.sendToServer(new C2SChangePagePacket(page));
+                      //  if (player.containerMenu instanceof CreativeModeInventoryScreen.ItemPickerMenu menu) {
+                       //    PacketHandler.sendToServer(new C2SCarriedItemPacket(menu.getCarried().copy()));
+                       //     menu.setCarried(ItemStack.EMPTY);
+                       // }
+                    }
+                },
                 (pButton, pPoseStack, pMouseX, pMouseY) -> {
                     InventoryPage inventoryPage = ((PlayerDuck)Minecraft.getInstance().player).inventoryPageList().get(page);
 
@@ -36,6 +57,7 @@ public class InventoryPageButton extends Button {
                     }
                     Minecraft.getInstance().screen.renderTooltip(pPoseStack,tooltip, Optional.empty(), pMouseX, pMouseY);
                 });
+        this.parent = parent;
         this.page = page;
     }
 
@@ -71,7 +93,7 @@ public class InventoryPageButton extends Button {
         RenderSystem.setShaderColor(1,1,1,1);
 
         InventoryPage.Config config = InventoryPages.LIST.get(this.page);
-        Minecraft.getInstance().getItemRenderer().renderAndDecorateFakeItem(config.icon(), x + 2, y + 2);
+        Minecraft.getInstance().getItemRenderer().renderAndDecorateFakeItem(config.icon(), x + 3, y + 2);
 
         if (this.isHovered) {
             this.renderToolTip(pPoseStack, pMouseX, pMouseY);

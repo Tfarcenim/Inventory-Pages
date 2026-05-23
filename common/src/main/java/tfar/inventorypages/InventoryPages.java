@@ -15,12 +15,11 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.level.GameRules;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-import tfar.inventorypages.network.client.S2CToastPacket;
+import tfar.inventorypages.network.client.S2CPopupPacket;
 import tfar.inventorypages.platform.Services;
 
 import java.io.*;
@@ -108,30 +107,15 @@ public class InventoryPages {
     }
 
     public static void handle(Player player, ItemStack itemStack, CallbackInfoReturnable<Boolean> cir) {
-        int page = findPage(itemStack);
-        if (page > -1) {
-            InventoryPageList inventoryPageList = ((PlayerDuck)player).inventoryPageList();
+        InventoryPageList inventoryPageList = ((PlayerDuck) player).inventoryPageList();
+        for (int page = 0; page < inventoryPageList.size(); page++) {
             InventoryPage inventoryPage = inventoryPageList.get(page);
-            ItemStack original = itemStack.copy();
-            boolean handled = inventoryPage.add(player,itemStack);
-            if (handled) {
+            boolean fullyHandled = inventoryPage.tryAdd(player,itemStack,page);
+            if (fullyHandled) {
                 cir.setReturnValue(true);
-            }
-            if (SHOW_POPUPS && player instanceof ServerPlayer serverPlayer) {
-                Services.PLATFORM.sendToClient(new S2CToastPacket(page,original),serverPlayer);
+                break;
             }
         }
-    }
-
-    public static int findPage(ItemStack itemStack) {
-        for (int i = 0; i < LIST.size(); i++) {
-            InventoryPage.Config config = LIST.get(i);
-            TagKey<Item> tagKey = config.tag();
-            if (tagKey == null || itemStack.is(tagKey)) {
-                return i;
-            }
-        }
-        return -1;
     }
 
     public static void tick(Player player) {

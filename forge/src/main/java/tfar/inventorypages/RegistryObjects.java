@@ -5,6 +5,5 @@ import net.minecraft.world.inventory.MenuType;
 import net.minecraftforge.common.extensions.IForgeMenuType;
 
 public class RegistryObjects {
-    public static final MenuType<InventoryPageMenu> INVENTORY_PAGE_MENU = new MenuType<>(InventoryPageMenu::new);
     public static final MenuType<InventoryPageMenuV2> INVENTORY_PAGE_MENU_V2 = IForgeMenuType.create(InventoryPageMenuV2::new);
 }

@@ -18,6 +18,7 @@ import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.items.wrapper.CombinedInvWrapper;
 import net.minecraftforge.items.wrapper.InvWrapper;
+import net.minecraftforge.items.wrapper.PlayerMainInvWrapper;
 import net.minecraftforge.registries.RegisterEvent;
 import tfar.inventorypages.client.InventoryPagesClientForge;
 import tfar.inventorypages.datagen.ModDatagen;
@@ -62,7 +63,7 @@ public class InventoryPagesForge {
         Player original = clone.getOriginal();
         Player newPlayer = clone.getEntity();
         boolean alive = !clone.isWasDeath();
-        boolean shouldKeepItems = alive || newPlayer.level.getGameRules().getBoolean(GameRules.RULE_KEEPINVENTORY);
+        boolean shouldKeepItems = alive || InventoryPages.KEEP_INV_PAGES;
 
         if (shouldKeepItems) {
             ((PlayerDuck)newPlayer).inventoryPageList().replaceWith(((PlayerDuck)original).inventoryPageList());
@@ -74,7 +75,6 @@ public class InventoryPagesForge {
     }
 
     void register(RegisterEvent event) {
-        event.register(Registry.MENU_REGISTRY,InventoryPages.id("menu"),() -> RegistryObjects.INVENTORY_PAGE_MENU);
         event.register(Registry.MENU_REGISTRY,InventoryPages.id("menu_v2"),() -> RegistryObjects.INVENTORY_PAGE_MENU_V2);
     }
 
@@ -84,7 +84,7 @@ public class InventoryPagesForge {
     }
 
     public static int moveToPages(Player player) {
-        IItemHandlerModifiable playerstacks = new InvWrapper(player.getInventory());
+        IItemHandlerModifiable playerstacks = new PlayerMainInvWrapper(player.getInventory());
 
         IItemHandlerModifiable target = makeWrapper(((PlayerDuck)player).inventoryPageList());
 

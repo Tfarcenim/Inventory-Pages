@@ -7,6 +7,7 @@ import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.ContainerHelper;
 import net.minecraft.world.entity.player.Player;
@@ -14,6 +15,8 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import tfar.inventorypages.network.client.S2CPopupPacket;
+import tfar.inventorypages.platform.Services;
 
 public class InventoryPage {
 
@@ -81,12 +84,12 @@ public class InventoryPage {
         }
     }
 
-    public boolean add(Player player, ItemStack stack) {
-        return this.add(player, -1, stack);
+    public boolean add(ItemStack stack) {
+        return this.add(-1, stack);
     }
 
-    public boolean add(Player player, int slot, ItemStack stack) {
-        if (stack.isEmpty()) {
+    public boolean add(int slot, ItemStack stack) {
+        if (stack.isEmpty() || !canPlaceItem(slot, stack)) {
             return false;
         } else {
             try {
@@ -98,9 +101,6 @@ public class InventoryPage {
                     if (slot >= 0) {
                         this.items.set(slot, stack.copy());
                         this.items.get(slot).setPopTime(5);
-                        stack.setCount(0);
-                        return true;
-                    } else if (player.getAbilities().instabuild) {
                         stack.setCount(0);
                         return true;
                     } else {
@@ -117,12 +117,7 @@ public class InventoryPage {
                         }
                     } while (!stack.isEmpty() && stack.getCount() < $$2);
 
-                    if (stack.getCount() == $$2 && player.getAbilities().instabuild) {
-                        stack.setCount(0);
-                        return true;
-                    } else {
-                        return stack.getCount() < $$2;
-                    }
+                    return stack.getCount() < $$2;
                 }
             } catch (Throwable throwable) {
                 CrashReport crashReport = CrashReport.forThrowable(throwable, "Adding item to inventory page");
@@ -199,6 +194,9 @@ public class InventoryPage {
     }
 
     public int getMaxStackSize() {
+        if (Services.PLATFORM.isModLoaded("biggerstacks")){
+            return Services.PLATFORM.getMaxStackSizeBiggerStacks();
+        }
         return 64;
     }
 
@@ -213,6 +211,18 @@ public class InventoryPage {
 
     public boolean canPlaceItem(int slot, @NotNull ItemStack stack) {
         return config.tag == null || stack.is(config.tag);
+    }
+
+    public boolean tryAdd(Player player, ItemStack itemStack,int page) {
+            ItemStack current = itemStack.copy();
+             boolean fullyHandled = add(itemStack);
+                if (InventoryPages.SHOW_POPUPS && player instanceof ServerPlayer serverPlayer && current.getCount() != itemStack.getCount()) {
+                    Services.PLATFORM.sendToClient(new S2CPopupPacket(page, current), serverPlayer);
+                }
+                if (fullyHandled) {
+                    return true;
+                }
+        return false;
     }
 
     public record Config(ItemStack icon, @Nullable TagKey<Item> tag, Component title, int pageColor) {

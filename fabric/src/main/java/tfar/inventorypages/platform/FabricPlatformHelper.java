@@ -35,4 +35,9 @@ public class FabricPlatformHelper implements IPlatformHelper {
     public void sendToClient(S2CModPacket packet, ServerPlayer player) {
 
     }
+
+    @Override
+    public int getMaxStackSizeBiggerStacks() {
+        return 0;
+    }
 }

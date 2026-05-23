@@ -47,10 +47,6 @@ public class InventoryPageMenuV2 extends AbstractContainerMenu {
 
     public void setPage(int page) {
         this.page.set(page);
-        if (inventoryPageList.player instanceof ServerPlayer serverPlayer) {
-            serverPlayer.connection.send(new ClientboundContainerSetContentPacket(containerId, incrementStateId(), inventoryPageList.get(page).items
-                    , getCarried()));
-        }
     }
 
     public int getPage() {

@@ -24,7 +24,6 @@ public record C2SChangePagePacket(int index) implements C2SModPacket{
         if (!(player.containerMenu instanceof  InventoryPageMenuV2 inventoryPageMenu)) {
             ItemStack carried = player.inventoryMenu.getCarried();
             player.inventoryMenu.setCarried(ItemStack.EMPTY);
-            player.containerMenu.setCarried(carried);
             NetworkHooks.openScreen(player,new MenuProvider() {
                 @Override
                 public Component getDisplayName() {
@@ -36,6 +35,7 @@ public record C2SChangePagePacket(int index) implements C2SModPacket{
                     return new InventoryPageMenuV2(pContainerId, pPlayerInventory, pPlayer, index);
                 }
             },buf -> buf.writeInt(index));
+            player.containerMenu.setCarried(carried);
             PacketHandler.sendToClient(new S2CCarriedItemPacket(carried),player);
         } else {
             inventoryPageMenu.setPage(index);

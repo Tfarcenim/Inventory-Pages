@@ -13,5 +13,6 @@ public class IPLang extends LanguageProvider {
     protected void addTranslations() {
         add("dropoff.dump_nearby", "Dump Nearby");
         add("dropoff.quick_stack", "Quick Stack");
+        add("dropoff.movetopages", "Move To Pages");
     }
 }

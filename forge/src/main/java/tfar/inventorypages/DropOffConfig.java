@@ -36,7 +36,7 @@ public class DropOffConfig {
     }
 
     public DropOffConfig(ForgeConfigSpec.Builder builder) {
-        builder.push(categoryGeneral);
+        builder.push("dropoff (deprecated)");
 
         scanRadius = builder.comment("Radius in blocks to check containers around the player.")
                 .defineInRange("Scan radius", DefaultValues.scanRadius, 0, Integer.MAX_VALUE);
@@ -89,7 +89,7 @@ public class DropOffConfig {
         public static ForgeConfigSpec.ConfigValue<List<String>> whitelistedContainers;
 
         public Client(ForgeConfigSpec.Builder builder) {
-            builder.push("general");
+            builder.push("dropoff (deprecated)");
             // booleans
             enableDump = builder.comment("Enable dump button.").define("Enable Dump Button", true);
             ignoreHotBar = builder.comment("Ignore hotbar when transferring.").define("Ignore Hotbar", true);

@@ -19,10 +19,12 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraftforge.client.event.RegisterGuiOverlaysEvent;
 import net.minecraftforge.client.event.RenderLevelStageEvent;
 import net.minecraftforge.client.event.ScreenEvent;
 import net.minecraftforge.client.gui.overlay.IGuiOverlay;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import tfar.inventorypages.*;
@@ -39,17 +41,33 @@ public class InventoryPagesClientForge {
 
     public static void init(IEventBus bus) {
         bus.addListener(InventoryPagesClientForge::setup);
+        bus.addListener(InventoryPagesClientForge::registerOverlays);
     }
 
     public static final IGuiOverlay OVERLAY = (gui, poseStack, partialTick, screenWidth, screenHeight) -> {
-        
+        int i = 0;
+        for (ClientPopup clientPopup : InventoryPagesClient.popups) {
+            clientPopup.render(poseStack,partialTick,screenWidth,screenHeight);
+        }
     };
 
+    static void clientTick(TickEvent.ClientTickEvent event) {
+        if (event.phase == TickEvent.Phase.START) {
+            if (!Minecraft.getInstance().isPaused()) {
+                InventoryPagesClient.tickPopups();
+            }
+        }
+    }
+
     static void setup(FMLClientSetupEvent event) {
-        MenuScreens.register(RegistryObjects.INVENTORY_PAGE_MENU, InventoryPageScreen::new);
         MenuScreens.register(RegistryObjects.INVENTORY_PAGE_MENU_V2, InventoryPageScreenV2::new);
         MinecraftForge.EVENT_BUS.addListener(InventoryPagesClientForge::addButtons);
         MinecraftForge.EVENT_BUS.addListener(InventoryPagesClientForge::onRenderWorldLastEvent);
+        MinecraftForge.EVENT_BUS.addListener(InventoryPagesClientForge::clientTick);
+    }
+
+    static void registerOverlays(RegisterGuiOverlaysEvent event) {
+        event.registerAboveAll("popup",OVERLAY);
     }
 
     static void addButtons(ScreenEvent.Init.Post event) {
@@ -59,16 +77,13 @@ public class InventoryPagesClientForge {
             int leftPos = abstractContainerScreen.getGuiLeft();
             int topPos = abstractContainerScreen.getGuiTop();
 
-            if (abstractContainerScreen instanceof InventoryScreen || abstractContainerScreen instanceof CreativeModeInventoryScreen ||abstractContainerScreen instanceof ContainerScreen) {
+            if (abstractContainerScreen instanceof InventoryScreen || abstractContainerScreen instanceof CreativeModeInventoryScreen) {
                 int buttons = InventoryPages.LIST.size();
                 for (int i = 0; i < buttons; i++) {
                     int finalI = i;
-                    event.addListener(new InventoryPageButton(leftPos - 20, topPos + 20 * i +
+                    event.addListener(new InventoryPageButton(abstractContainerScreen,leftPos - 20, topPos + 20 * i +
                             InventoryPageScreenV2.TOP + 20,
-                            20, 20, Component.empty(),
-                            b -> {
-                                PacketHandler.sendToServer(new C2SChangePagePacket(finalI));
-                            }, finalI));
+                            20, 20, Component.empty(), finalI));
                 }
             }
 
@@ -96,7 +111,7 @@ public class InventoryPagesClientForge {
             if (screen instanceof InventoryScreen) {
                 event.addListener(new MoveToPagesButton(xPos + 24, yPos, 10, 14, Component.literal("^"), b -> C2SBackPacket.INSTANCE2.send(),
                         (pButton, pPoseStack, pMouseX, pMouseY) -> {
-                            screen.renderTooltip(pPoseStack, Component.translatable("dropoff.move_to_pages"), pMouseX, pMouseY);
+                            screen.renderTooltip(pPoseStack, Component.literal("Move To Pages"), pMouseX, pMouseY);
                         }));
             }
 

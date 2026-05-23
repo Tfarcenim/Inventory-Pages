@@ -17,7 +17,8 @@ public class InventoryPageList extends ArrayList<InventoryPage> {
     }
 
     public void load(ListTag listTag) {
-        for (int i = 0; i < listTag.size(); i++) {
+        int pagesToLoad = Math.min(size(),listTag.size());
+        for (int i = 0; i < pagesToLoad; i++) {
             Tag tag = listTag.get(i);
             ListTag cTag = (ListTag) tag;
             get(i).load(cTag);
